@@ -19,12 +19,12 @@ pipeline {
            parallel{
                stage('Deploy_to_staging'){
                 steps {
-                  sh "cp **/target/*.war /var/www/html/"
+                  sh "cp **/target/*.war /home/dvv/stage"
                   }
                 }
                stage ('Deploy to Production'){
                  steps{
-                  sh "cp **/target/*.war /var/www/html/prod/"
+                  sh "cp **/target/*.war /home/dvv/prod"
                 }
              }
           }
