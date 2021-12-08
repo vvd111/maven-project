@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    triggers {
+     pollSCM('*/5 * * * *')
+    }
     stages{
         stage('Build'){
             steps {
@@ -11,28 +14,22 @@ pipeline {
                     archiveArtifacts artifacts: '**/target/*.war'
                 }
             }
-        }
- #       stage ('Deploy to Staging'){
- #           steps {
- #               build job: 'Deploy-to-staging'
- #           }
- #       }
-
-        stage ('Deploy to Production'){
-            steps{
-                timeout(time:5, unit:'DAYS'){
+         }
+         stage ('Deployments'){
+           parallel{
+               stage('Deploy_to_staging'){
+                steps {
+                  sh "cp **/target/*.war /var/www/html "
+                  }
+                }
+               stage ('Deploy to Production'){
+                 steps{
+                  timeout(time:5, unit:'DAYS'){
                     input message:'Approve PRODUCTION Deployment?'
+                  }
+                sh "cp **/target/*.war /var/www/html"
                 }
-                build job: 'deploy_to_Prod'
-            }
-            post {
-                success {
-                    echo 'Code deployed to Production.'
-                }
-                failure {
-                    echo ' Deployment failed.'
-                }
-            }
+             }
+          }
         }
-    }
-}
+     }
